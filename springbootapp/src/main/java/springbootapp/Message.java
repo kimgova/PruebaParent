@@ -1,9 +1,11 @@
 package springbootapp;
 
+import java.io.Serializable;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @JsonIgnoreProperties(ignoreUnknown = true)
 
-public class Message {
+public class Message implements Serializable {
 
 	private long id;
 	private String content;

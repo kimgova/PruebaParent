@@ -4,6 +4,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.JmsException;
+import javax.jms.JMSException;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,10 +18,17 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/message")
 public class MessageController {
 
+    public static final String PG_QUEUE = "Q1";
+    public static final String PG_REPLY_2_QUEUE = "Q2";
+
+    
 	private static final String template = "Hi, %s! :)";
 	private final AtomicLong counter = new AtomicLong();
 	@Autowired
     private JmsTemplate jmsTemplate;
+	
+	@Autowired
+    private Producer producer;
 
 	@GetMapping
 	public Message getMessage(@RequestParam(value = "name", defaultValue = "World") String name) {
@@ -31,7 +39,7 @@ public class MessageController {
 	@GetMapping("send")
 	String send(){
 	    try{
-	    	jmsTemplate.convertAndSend("Q1", "Hello World Alejandro!");
+	    	jmsTemplate.convertAndSend(PG_QUEUE, "Hello World Alejandro!");
 	        return "OK";
 	    }catch(JmsException ex){
 	        ex.printStackTrace();
@@ -42,7 +50,7 @@ public class MessageController {
 	@GetMapping("recv")
 	String recv(){
 	    try{
-	        return jmsTemplate.receiveAndConvert("Q1").toString();
+	        return jmsTemplate.receiveAndConvert(PG_QUEUE).toString();
 	    }catch(JmsException ex){
 	        ex.printStackTrace();
 	        return "FAIL";
@@ -53,12 +61,19 @@ public class MessageController {
 	public String postMessage(
 			@RequestHeader(name = "XML_VERSION", required = true) String xmlVersion,
 			@RequestBody Message message){
+		
 		try{
-	    	jmsTemplate.convertAndSend("Q1", message.getContent());
+	    	//jmsTemplate.convertAndSend(PG_QUEUE, message.getContent());
+			
+			producer.sendWithReply(message.getContent());
+			
 	        return "OK";
-	    }catch(JmsException ex){
-	        ex.printStackTrace();
-	        return "FAIL";
+	    }catch(JMSException ex1){
+	        ex1.printStackTrace();
+	        return "FAIL1";
+	    }catch(JmsException ex2){
+	        ex2.printStackTrace();
+	        return "FAIL2";
 	    }
 	}
 }

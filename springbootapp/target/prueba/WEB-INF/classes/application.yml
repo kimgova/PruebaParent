@@ -7,7 +7,7 @@ servers:
     - www.xyz.test.com
 ibm:
     mq:
-        queueManager: QM1
+        queueManager: CRCORPAG
         channel: 
         connName:
         user:
