@@ -5,6 +5,8 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.JmsException;
 import javax.jms.JMSException;
+import javax.naming.NamingException;
+
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -74,6 +76,10 @@ public class MessageController {
 	    }catch(JmsException ex2){
 	        ex2.printStackTrace();
 	        return "FAIL2";
+	    }
+		catch(NamingException ex2){
+	        ex2.printStackTrace();
+	        return "FAIL3";
 	    }
 	}
 }
