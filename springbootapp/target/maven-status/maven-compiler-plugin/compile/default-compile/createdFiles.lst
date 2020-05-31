@@ -1,5 +1,7 @@
 springbootapp\MessageController.class
 springbootapp\PruebaApplication.class
+springbootapp\Receiver.class
 springbootapp\Message.class
 META-INF\spring-configuration-metadata.json
 springbootapp\YAMLConfig.class
+springbootapp\Producer.class

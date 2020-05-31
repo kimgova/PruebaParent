@@ -3,11 +3,11 @@ package springbootapp;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jms.JmsException;
+//import org.springframework.jms.JmsException;
 import javax.jms.JMSException;
 import javax.naming.NamingException;
 
-import org.springframework.jms.core.JmsTemplate;
+//import org.springframework.jms.core.JmsTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -26,9 +26,9 @@ public class MessageController {
     
 	private static final String template = "Hi, %s! :)";
 	private final AtomicLong counter = new AtomicLong();
-	@Autowired
+	/*@Autowired
     private JmsTemplate jmsTemplate;
-	
+	*/
 	@Autowired
     private Producer producer;
 
@@ -37,7 +37,7 @@ public class MessageController {
 		return new Message(counter.incrementAndGet(), String.format(template, name));
 	}
 	
-	
+	/*
 	@GetMapping("send")
 	String send(){
 	    try{
@@ -58,7 +58,7 @@ public class MessageController {
 	        return "FAIL";
 	    }
 	}
-	
+	*/
 	@PostMapping
 	public String postMessage(
 			@RequestHeader(name = "XML_VERSION", required = true) String xmlVersion,
@@ -73,13 +73,17 @@ public class MessageController {
 	    }catch(JMSException ex1){
 	        ex1.printStackTrace();
 	        return "FAIL1";
-	    }catch(JmsException ex2){
+	   /* }catch(JmsException ex2){
 	        ex2.printStackTrace();
 	        return "FAIL2";
-	    }
-		catch(NamingException ex2){
-	        ex2.printStackTrace();
+	 */   }
+		catch(NamingException ex3){
+	        ex3.printStackTrace();
 	        return "FAIL3";
+	    }
+		catch(Exception ex4){
+	        ex4.printStackTrace();
+	        return "FAIL4";
 	    }
 	}
 }

@@ -1,6 +1,6 @@
 package springbootapp;
 
-import org.springframework.jms.annotation.JmsListener;
+//import org.springframework.jms.annotation.JmsListener;
 import org.springframework.stereotype.Component;
 
 import javax.jms.Session;

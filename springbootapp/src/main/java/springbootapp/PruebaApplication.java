@@ -10,20 +10,16 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
-import org.springframework.jms.annotation.EnableJms;
-import org.springframework.jms.config.DefaultJmsListenerContainerFactory;
-import org.springframework.jms.config.JmsListenerContainerFactory;
-import org.springframework.jms.core.JmsTemplate;
 import org.springframework.web.bind.annotation.RestController;
 
-@SpringBootApplication
-@EnableJms
+@SpringBootApplication//(exclude = org.springframework.messaging.handler.annotation.support.MessageHandlerMethodFactory.class)
+//@EnableJms
 @RestController
 public class PruebaApplication extends SpringBootServletInitializer{
 
 	@Autowired
     private YAMLConfig appConfig;
-	 
+	/* 
 	@Bean
 	public JmsListenerContainerFactory<?>
 	jmsListenerContainerFactory
@@ -40,7 +36,7 @@ public class PruebaApplication extends SpringBootServletInitializer{
 	     
 		return factory;
 	}
-
+*/
 	public static void main(String[] args) {
 		SpringApplication.run(PruebaApplication.class, args);
 	}
