@@ -1,42 +1,23 @@
 package springbootapp;
 
 import java.util.UUID;
-
-import javax.jms.DeliveryMode;
-import javax.jms.Destination;
 import javax.jms.JMSException;
-import javax.jms.ObjectMessage;
 import javax.jms.Queue;
 import javax.jms.QueueConnection;
 import javax.jms.QueueConnectionFactory;
+import javax.jms.QueueReceiver;
 import javax.jms.QueueSender;
 import javax.jms.QueueSession;
-import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.naming.NamingException;
-
-//import org.springframework.jms.core.JmsMessagingTemplate;
-/*import org.springframework.jms.core.JmsTemplate;
-import org.springframework.jms.core.SessionCallback;*/
 import org.springframework.stereotype.Service;
-
-import com.ibm.mq.jms.MQQueue;
-import com.ibm.mq.jms.MQDestination;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import javax.naming.InitialContext;
 
 @Service
 public class Producer {
-//	@Autowired
-//    JmsMessagingTemplate jmsMessagingTemplate;
-
- /*   @Autowired
-    JmsTemplate jmsTemplate;
-  */ 
     
-    public static final String PG_QUEUE = "CL.LCRCOM.PG.CON";
-    public static final String PG_REPLY_2_QUEUE = "PAG.SEC.RSP";
+    //public static final String PG_QUEUE = "CL.LCRCOM.PG.CON";
+    //public static final String PG_REPLY_2_QUEUE = "PAG.SEC.RSP";
     public static final String PG_INPUT_QUEUE_JNDI = "jms/pagCRInputQueue";
     public static final String PG_OUTPUT_QUEUE_JNDI = "jms/pagCROutputQueue";
     public static final String PROPERTY_PAGUELO_MESSAGE_XML_VERSION = "PAGUELO_MESSAGE_XML_VERSION";
@@ -53,6 +34,7 @@ public class Producer {
     	QueueSender queueSender = null;
     	TextMessage textMessage = null;
     	String responseMessageId = "";
+    	String response = "";
     	
     	try {
 	        ctx = new InitialContext();
@@ -76,14 +58,53 @@ public class Producer {
 			queueSender.close();
 			queueSession.close();
 			queueConnection.close();
+
+			if (null != responseMessageId) {
+				response = receive(responseMessageId, textMessage);
+			}
+
     	} catch (JMSException jmse) {
 			throw jmse;
 		} catch (Exception dfe) {
 			throw dfe;
 		} finally {
-			
-		}
+		}    	
     	
-        return responseMessageId;
+        return response;
     }
+    
+    public String receive(String responseMessageId, TextMessage message) throws NamingException, JMSException{
+		long timeOut = 80000L;
+		QueueConnectionFactory queueConnectionFactory = null;
+		QueueConnection queueConnection = null;
+		QueueSession queueSession = null;
+		QueueReceiver queueReceiver = null;
+		String msgResponse = "";
+		InitialContext context = null;
+		
+		try {
+			context = new InitialContext();
+
+			queueConnectionFactory = (QueueConnectionFactory) context.lookup(FACTORY_NAME);
+			queueConnection = queueConnectionFactory.createQueueConnection();
+			queueSession = queueConnection.createQueueSession(false,QueueSession.AUTO_ACKNOWLEDGE);
+			queueReceiver = queueSession.createReceiver(
+					(Queue) context.lookup(PG_INPUT_QUEUE_JNDI),
+					"JMSCorrelationID = '" + responseMessageId + '\''); //$NON-NLS-1$
+
+			queueConnection.start();
+			javax.jms.TextMessage msg = (TextMessage) queueReceiver.receive(timeOut);
+			msgResponse = msg.getText();
+			
+			System.out.println(msg.toString());
+			System.out.println(msgResponse);
+
+		} finally {
+			queueReceiver.close();
+			queueSession.close();
+			queueConnection.close();
+		}
+
+		return msgResponse;
+	}
 }
