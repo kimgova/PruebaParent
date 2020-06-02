@@ -20,10 +20,6 @@ import javax.naming.NamingException;
 import org.springframework.jms.core.SessionCallback;*/
 import org.springframework.stereotype.Service;
 
-import com.ibm.mq.jms.MQQueue;
-import com.ibm.mq.jms.MQDestination;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import javax.naming.InitialContext;
 
 @Service
