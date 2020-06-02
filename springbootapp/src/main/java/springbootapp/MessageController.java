@@ -22,13 +22,37 @@ public class MessageController {
 	private final AtomicLong counter = new AtomicLong();
 
 	@Autowired
-    private Producer producer;
+    private MessageService messageService;
 
 	@Autowired
     private YAMLConfig appConfig;
 
+/*****/	
+	public MessageController() {
+		super();
+	}
+	
+	public MessageController(MessageService nmessageService) {
+		super();
+		this.messageService = nmessageService;
+	}
+	
+	public MessageService getMessageService() {
+		return this.messageService;
+	}
+
+	public void setMessageService(MessageService nmessageService) {
+		messageService = nmessageService;
+	}
+	
+	/*****/
+	
 	@GetMapping
 	public Message getMessage(@RequestParam(value = "name", defaultValue = "World") String name) {
+		System.out.println("--> Using environment: " + appConfig.getEnvironment());
+		System.out.println("--> Name: " + appConfig.getName());
+		System.out.println("--> Servers: " + appConfig.getServers());
+		
 		return new Message(counter.incrementAndGet(), String.format(template, name));
 	}
 	
@@ -37,12 +61,8 @@ public class MessageController {
 			@RequestHeader(name = "XML_VERSION", required = true) String xmlVersion,
 			@RequestBody Message message){
 		
-		System.out.println("--> Using environment: " + appConfig.getEnvironment());
-		System.out.println("--> Name: " + appConfig.getName());
-		System.out.println("--> Servers: " + appConfig.getServers());
-		
 		try{			
-			String response = producer.sendWithReply(message.getContent());
+			String response = messageService.sendWithReply(message.getContent());
 	        return "OK \n"+response;
 	    }
 		catch(JMSException ex1){

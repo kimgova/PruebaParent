@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 import javax.naming.InitialContext;
 
 @Service
-public class Producer {
+public class MessageService {
     
     //public static final String PG_QUEUE = "CL.LCRCOM.PG.CON";
     //public static final String PG_REPLY_2_QUEUE = "PAG.SEC.RSP";
