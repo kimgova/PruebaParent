@@ -6,6 +6,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import org.mockito.Mockito;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 public class MessageControllerTest {
 
 	private MessageService messageService;
@@ -26,10 +28,10 @@ public class MessageControllerTest {
 				
 		Mockito.when(messageService.sendWithReply("<Mensaje>")).thenReturn("<Respuesta>");
 		
-		String result =  messageController.postMessage("2.0", new Message(1,"<Mensaje>"));
+		ResponseEntity<String> result = messageController.postMessage("2.0", new Message(1,"<Mensaje>"));
 		
-		//--assert
-		Assert.assertNotNull(result);		
+		Assert.assertEquals(HttpStatus.OK, result.getStatusCode());
+		Assert.assertNotNull(result.getBody());	
 	}
 
 }

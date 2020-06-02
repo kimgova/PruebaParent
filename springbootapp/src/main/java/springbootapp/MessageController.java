@@ -3,6 +3,9 @@ package springbootapp;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+
 import javax.jms.JMSException;
 import javax.naming.NamingException;
 
@@ -57,25 +60,31 @@ public class MessageController {
 	}
 	
 	@PostMapping
-	public String postMessage(
+	public ResponseEntity<String> postMessage(
 			@RequestHeader(name = "XML_VERSION", required = true) String xmlVersion,
 			@RequestBody Message message){
 		
 		try{			
 			String response = messageService.sendWithReply(message.getContent());
-	        return "OK \n"+response;
+	        return ResponseEntity.ok().body("OK \n"+response);
 	    }
 		catch(JMSException ex1){
 	        ex1.printStackTrace();
-	        return "FAIL JMSException";
+	        return new ResponseEntity<>(
+	        		"FAIL JMSException", 
+	                HttpStatus.BAD_REQUEST);
 	    }
 		catch(NamingException ex2){
 	        ex2.printStackTrace();
-	        return "FAIL NamingException";
+	        return new ResponseEntity<>(
+	        		"FAIL NamingException", 
+	                HttpStatus.BAD_REQUEST);
 	    }
 		catch(Exception ex3){
 	        ex3.printStackTrace();
-	        return "FAIL Exception";
+	        return new ResponseEntity<>(
+	        		"FAIL Exception", 
+	                HttpStatus.BAD_REQUEST);
 	    }
 	}
 }
