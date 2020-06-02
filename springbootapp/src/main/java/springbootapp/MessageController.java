@@ -1,13 +1,12 @@
 package springbootapp;
-
 import java.util.concurrent.atomic.AtomicLong;
 
-//import org.springframework.jms.JmsException;
 import javax.jms.JMSException;
 import javax.naming.NamingException;
 
 import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.jms.core.JmsTemplate;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -23,48 +22,67 @@ import io.swagger.annotations.ApiOperation;
 @RestController
 @RequestMapping("/message")
 public class MessageController {
-
-    public static final String PG_QUEUE = "Q1";
-    public static final String PG_REPLY_2_QUEUE = "Q2";
-
-    
 	private static final String template = "Hi, %s! :)";
 	private final AtomicLong counter = new AtomicLong();
-	/*@Autowired
-    private JmsTemplate jmsTemplate;
-	*/
 	@Autowired
-    private Producer producer;
-
+    private MessageService messageService;
+	@Autowired
+    private YAMLConfig appConfig;
+/*****/	
+	public MessageController() {
+		super();
+	}
+	
+	public MessageController(MessageService nmessageService) {
+		super();
+		this.messageService = nmessageService;
+	}
+	
+	public MessageService getMessageService() {
+		return this.messageService;
+	}
+	public void setMessageService(MessageService nmessageService) {
+		messageService = nmessageService;
+	}
+	
+	/*****/
+	
 	@GetMapping
 	public Message getMessage(@RequestParam(value = "name", defaultValue = "World") String name) {
+		System.out.println("--> Using environment: " + appConfig.getEnvironment());
+		System.out.println("--> Name: " + appConfig.getName());
+		System.out.println("--> Servers: " + appConfig.getServers());
+		
 		return new Message(counter.incrementAndGet(), String.format(template, name));
 	}
 	
-	
-	@ApiOperation(value = "SendMessage", notes = "Put messages in MQ")
+	@ApiOperation(value = "SendMessage", notes = "Put messages in MQ")	
 	@PostMapping
-	public String postMessage(
+	public ResponseEntity<String> postMessage(
 			@RequestHeader(name = "XML_VERSION", required = true) String xmlVersion,
 			@RequestBody Message message){
 		
-		try{
-	    	//jmsTemplate.convertAndSend(PG_QUEUE, message.getContent());
-			
-			producer.sendWithReply(message.getContent());
-			
-	        return "OK";
-	    }catch(JMSException ex1){
-	        ex1.printStackTrace();
-	        return "FAIL1";
-	   }
-		catch(NamingException ex3){
-	        ex3.printStackTrace();
-	        return "FAIL3";
+		try{			
+			String response = messageService.sendWithReply(message.getContent());
+	        return ResponseEntity.ok().body("OK \n"+response);
 	    }
-		catch(Exception ex4){
-	        ex4.printStackTrace();
-	        return "FAIL4";
+		catch(JMSException ex1){
+	        ex1.printStackTrace();
+	        return new ResponseEntity<>(
+	        		"FAIL JMSException",
+	                HttpStatus.BAD_REQUEST);
+	    }
+		catch(NamingException ex2){
+	        ex2.printStackTrace();
+	        return new ResponseEntity<>(
+	        		"FAIL NamingException",
+	                HttpStatus.BAD_REQUEST);
+	    }
+		catch(Exception ex3){
+	        ex3.printStackTrace();
+	        return new ResponseEntity<>(
+	        		"FAIL Exception",
+	                HttpStatus.BAD_REQUEST);
 	    }
 	}
 }

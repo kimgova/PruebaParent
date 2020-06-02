@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
-@SpringBootApplication//(exclude = org.springframework.messaging.handler.annotation.support.MessageHandlerMethodFactory.class)
-//@EnableJms
+
+@SpringBootApplication
 @RestController
 @EnableSwagger2
 public class PruebaApplication extends SpringBootServletInitializer{
@@ -19,12 +19,12 @@ public class PruebaApplication extends SpringBootServletInitializer{
     private YAMLConfig appConfig;
 	
 	public static void main(String[] args) {
-		SpringApplication.run(PruebaApplication.class, args);
+        SpringApplication.run(PruebaApplication.class, args);
 	}
-
+	
 	@Override
-    protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
-        return application.sources(PruebaApplication.class);
+    protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {	     
+		return application.sources(PruebaApplication.class);
     }
 
 }
